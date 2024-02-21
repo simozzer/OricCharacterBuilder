@@ -9,7 +9,7 @@
 #include "keys.s"
 
 int cursor_x = 2;
-int cursor_y = 1;
+int cursor_y = 2;
 
 // Declare the assembly code function
 void AdvancedPrint(char x_pos,char y_pos,const char *ptr_message);
@@ -29,15 +29,15 @@ void printDataForSelectedPixel()
 {
 	int selectedCharCol = (cursor_x -2)/6;
 	int selectedCharRow = (cursor_y-2)/8;
-	int asciiCode = (selectedCharRow*3) + selectedCharCol + 35;
+	int asciiCode = (selectedCharRow*4) + selectedCharCol + 35;
 
 	char str[7];
 	sprintf(str,"Col: %d\n", selectedCharCol);
-	AdvancedPrint(22,10,str);
+	AdvancedPrint(30,10,str);
 	sprintf(str,"Row: %d\n", selectedCharRow);
-	AdvancedPrint(22,11,str);
+	AdvancedPrint(30,11,str);
 	sprintf(str,"Chr: %d\n",asciiCode);
-	AdvancedPrint(22,12,str);
+	AdvancedPrint(30,12,str);
 	printBitmapData(2,27,asciiCode);
 }
 
@@ -100,7 +100,7 @@ void mainLoop()
 	char k = key();
 	int done = 0;
 
-	setCursorYPos(1);
+	setCursorYPos(2);
 	setCursorXPos(2);
 	InvertChar(cursor_x, cursor_y);
 
@@ -109,28 +109,40 @@ void mainLoop()
 
 		switch(k) {
 			case KEY_DOWN:
-				UninvertChar(cursor_x, cursor_y);
-				setCursorYPos(cursor_y+1);
-				printDataForSelectedPixel();
-				InvertChar(cursor_x, cursor_y);
+				if (cursor_y < 25) 
+				{
+					UninvertChar(cursor_x, cursor_y);
+					setCursorYPos(cursor_y+1);
+					printDataForSelectedPixel();
+					InvertChar(cursor_x, cursor_y);
+				}
 				break;
 			case KEY_UP:
-				UninvertChar(cursor_x, cursor_y);
-				setCursorYPos(cursor_y-1);
-				printDataForSelectedPixel();
-				InvertChar(cursor_x, cursor_y);
+				if (cursor_y > 2) 
+				{
+					UninvertChar(cursor_x, cursor_y);
+					setCursorYPos(cursor_y-1);
+					printDataForSelectedPixel();
+					InvertChar(cursor_x, cursor_y);
+				}
 				break;
 			case KEY_LEFT:
-				UninvertChar(cursor_x, cursor_y);
-				setCursorXPos(cursor_x-1);
-				printDataForSelectedPixel();
-				InvertChar(cursor_x, cursor_y);
+				if (cursor_x > 2)
+				{
+					UninvertChar(cursor_x, cursor_y);
+					setCursorXPos(cursor_x-1);
+					printDataForSelectedPixel();
+					InvertChar(cursor_x, cursor_y);
+				}
 				break;
 			case KEY_RIGHT:
-				UninvertChar(cursor_x, cursor_y);
-				setCursorXPos(cursor_x+1);
-				printDataForSelectedPixel();
-				InvertChar(cursor_x, cursor_y);
+				if (cursor_x < 25)
+				{
+					UninvertChar(cursor_x, cursor_y);
+					setCursorXPos(cursor_x+1);
+					printDataForSelectedPixel();
+					InvertChar(cursor_x, cursor_y);
+				}
 				break;
 			case KEY_Q:
 				done = 1;
@@ -151,16 +163,21 @@ void main()
 	printLargeCharacterBitmap(2,2,35);
 	printLargeCharacterBitmap(8,2,36);
 	printLargeCharacterBitmap(14,2,37);
-	printLargeCharacterBitmap(2,10,38);
-	printLargeCharacterBitmap(8,10,39);
-	printLargeCharacterBitmap(14,10,40);
-	printLargeCharacterBitmap(2,18,41);
-	printLargeCharacterBitmap(8,18,42);
-	printLargeCharacterBitmap(14,18,43);
+	printLargeCharacterBitmap(20,2,38);
 
-	AdvancedPrint(22,2,"#$%");
-	AdvancedPrint(22,3,"&'(");
-	AdvancedPrint(22,4,")*+");
+	printLargeCharacterBitmap(2,10,39);
+	printLargeCharacterBitmap(8,10,40);
+	printLargeCharacterBitmap(14,10,41);
+	printLargeCharacterBitmap(20,10,42);
+
+	printLargeCharacterBitmap(2,18,42);
+	printLargeCharacterBitmap(8,18,43);
+  printLargeCharacterBitmap(14,18,44);
+  printLargeCharacterBitmap(20,18,45);
+
+	AdvancedPrint(30,2,"#$%&");
+	AdvancedPrint(30,3,"&'()");
+	AdvancedPrint(30,4,"*+,-");
 
 	printBitmapData(2,27,35);
 	mainLoop();
