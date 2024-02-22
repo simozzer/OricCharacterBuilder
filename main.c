@@ -30,15 +30,42 @@ void printDataForSelectedPixel()
 	int selectedCharCol = (cursor_x -2)/6;
 	int selectedCharRow = (cursor_y-2)/8;
 	int asciiCode = (selectedCharRow*4) + selectedCharCol + 35;
-
-	char str[7];
-	sprintf(str,"Col: %d\n", selectedCharCol);
-	AdvancedPrint(30,10,str);
-	sprintf(str,"Row: %d\n", selectedCharRow);
-	AdvancedPrint(30,11,str);
-	sprintf(str,"Chr: %d\n",asciiCode);
-	AdvancedPrint(30,12,str);
 	printBitmapData(2,27,asciiCode);
+}
+
+
+void flipSelectedPixel()
+{
+	int selectedCharCol = (cursor_x -2)/6;
+	int selectedCharRow = (cursor_y-2)/8;
+	int asciiCode = (selectedCharRow*4) + selectedCharCol + 35;
+	int selectedPixelCol = 6 -((cursor_x -2)%6);
+	int selectedPixelRow = (cursor_y -2)%8;
+	char bit = 1 << (selectedPixelCol -1);
+	char *byteToModify = (char *)(0xb400 + (8*asciiCode) + selectedPixelRow);
+	if (*byteToModify & bit) {
+		*byteToModify = *byteToModify &(~ bit);
+		AdvancedPrint(cursor_x,cursor_y,"!");
+	} else {
+		*byteToModify = *byteToModify | bit;
+		AdvancedPrint(cursor_x,cursor_y,"\"");
+	}
+
+}
+
+void clearAll() 
+{
+	int i;
+	int ascii;
+	char *byteToModify;
+	for (ascii = 35; ascii < 47; ascii++) {
+		byteToModify = (char *)(0xb400 + (8*ascii));
+		for (i=0; i<8;i++) {
+			*byteToModify = 0;
+			byteToModify++;
+		}
+	}
+
 }
 
 void printLargeCharacterBitmap(char x_pos, char y_pos, unsigned char character)
@@ -148,18 +175,21 @@ void mainLoop()
 				done = 1;
 				cls();
 				printf("goodbye");
+			case KEY_SPACE:
+				flipSelectedPixel();
+				break;	
+			case KEY_C:
+				clearAll();
+				printAllBitmaps();
+				break;
 			default:;
 				
 		}
 	}
 }
 
-void main()
+void printAllBitmaps()
 {
-	cls();
-	disableCursor();
-	InitializeCharacters();
-	
 	printLargeCharacterBitmap(2,2,35);
 	printLargeCharacterBitmap(8,2,36);
 	printLargeCharacterBitmap(14,2,37);
@@ -170,14 +200,32 @@ void main()
 	printLargeCharacterBitmap(14,10,41);
 	printLargeCharacterBitmap(20,10,42);
 
-	printLargeCharacterBitmap(2,18,42);
-	printLargeCharacterBitmap(8,18,43);
-  printLargeCharacterBitmap(14,18,44);
-  printLargeCharacterBitmap(20,18,45);
+	printLargeCharacterBitmap(2,18,43);
+	printLargeCharacterBitmap(8,18,44);
+  printLargeCharacterBitmap(14,18,45);
+  printLargeCharacterBitmap(20,18,46);
+}
+
+void main()
+{
+	cls();
+	disableCursor();
+	InitializeCharacters();
+	
+	printAllBitmaps();
 
 	AdvancedPrint(30,2,"#$%&");
-	AdvancedPrint(30,3,"&'()");
-	AdvancedPrint(30,4,"*+,-");
+	AdvancedPrint(30,3,"'()*");
+	AdvancedPrint(30,4,"+,-.");
+
+	AdvancedPrint(27,7,"Arrows:");
+	AdvancedPrint(28,8,"move cursor");
+	AdvancedPrint(27,10,"Space:");
+	AdvancedPrint(28,11,"flip pixel");
+	AdvancedPrint(27,13,"C:");
+	AdvancedPrint(28,14,"clear all");
+	AdvancedPrint(27,16,"Q:");
+	AdvancedPrint(28,17,"quit");
 
 	printBitmapData(2,27,35);
 	mainLoop();
